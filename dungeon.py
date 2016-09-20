@@ -1,13 +1,14 @@
 import random
 
-player_base_health, player_base_defense, player_base_strike = [11, 2, 2]
+player_base_health, player_base_defense, player_base_strike = [11, 2, 3]
 inv = { 'dagger': 1 }
 goblin_counters = { 'health point': 0, 'defense point': 0, 'strike point': 0 }
 curr_loot = []
-loot_options = ['ruby','coin','strike point','health point','defense point']
+loot_options = ['strike point','health point','defense point']
 player = { 'health': player_base_health, 'defense': player_base_defense, 'strike': player_base_strike }
 base_goblin = { 'health': 8, 'defense': 3, 'strike': 2 }
 goblins_fought = 0
+display_type = "l"
 
 def generateValues(attacker):
   results = []
@@ -20,10 +21,31 @@ def generateValues(attacker):
   results.extend((strike, defense))
   return results
 
+def simulateCombat():
+  turn = 'player'
+  while goblin['health'] > 0 and player['health'] > 0:
+    strike, defense = generateValues(turn)
+    if turn == 'player':
+      if strike == defense:
+        goblin['health'] -= 1
+      elif strike > defense:
+        diff = strike - defense
+        goblin['health'] -= diff
+    else:
+      if strike == defense:
+        player['health'] -= 1
+      elif strike > defense:
+        diff = strike - defense
+        player['health'] -= diff
+    if turn == 'player':
+      turn = 'goblin'
+    else:
+      turn = 'player'
+
 def getLoot():
   results = []
   results_str = ''
-  for i in range(3):
+  for i in range(random.randint(1,3)):
     item = loot_options[random.randint(0,len(loot_options)-1)]
     results.append(item)
     if len(results_str) > 0:
@@ -79,6 +101,9 @@ def printStats():
   print('Your final stats were... HEALTH: ' + str(player['health']) + ' DEFENSE: ' + str(player['defense']) + ' STRIKE: ' + str(player['strike']) +
         ' GOBLINS FOUGHT: ' + str(goblins_fought))
 
+print("Do you want (s)hort or (l)ong action details?")
+display_type = input()
+
 while True:
   print('Do you want to fight another goblin? Y/N')
   answer = input()
@@ -86,35 +111,38 @@ while True:
     goblins_fought += 1
     goblin = createGoblin()
     turn = 'player'
-    while goblin['health'] > 0 and player['health'] > 0:
-      strike, defense = generateValues(turn)
-      if turn == 'player':
-        if strike == defense:
-          goblin['health'] -= 1
-          print('Your strike and the goblin\'s defense were EQUAL so you did 1 point of damage')
-        elif strike > defense:
-          diff = strike - defense
-          goblin['health'] -= diff
-          print('Your strike was GREATER than the goblin\'s defense so you did ' + str(diff) + ' point(s) of damage')
+    if display_type.lower() == 'l':
+      while goblin['health'] > 0 and player['health'] > 0:
+        strike, defense = generateValues(turn)
+        if turn == 'player':
+          if strike == defense:
+            goblin['health'] -= 1
+            print('Your strike and the goblin\'s defense were EQUAL so you did 1 point of damage')
+          elif strike > defense:
+            diff = strike - defense
+            goblin['health'] -= diff
+            print('Your strike was GREATER than the goblin\'s defense so you did ' + str(diff) + ' point(s) of damage')
+          else:
+            print('The goblin completely blocked your strike')
         else:
-          print('The goblin completely blocked your strike')
-      else:
-        if strike == defense:
-          player['health'] -= 1
-          print('The goblin\'s strike and your defense were EQUAL so you took 1 point of damage')
-        elif strike > defense:
-          diff = strike - defense
-          player['health'] -= diff
-          print('The goblin\'s strike was GREATER than the your defense so you took ' + str(diff) + ' point(s) of damage')
+          if strike == defense:
+            player['health'] -= 1
+            print('The goblin\'s strike and your defense were EQUAL so you took 1 point of damage')
+          elif strike > defense:
+            diff = strike - defense
+            player['health'] -= diff
+            print('The goblin\'s strike was GREATER than the your defense so you took ' + str(diff) + ' point(s) of damage')
+          else:
+            print('You completely blocked the goblin\'s strike')
+        print('YOU: ' + str(player['health']) + ' GOBLIN: ' + str(goblin['health']))
+        print('Press any key to continue to fight...')
+        press = input()
+        if turn == 'player':
+          turn = 'goblin'
         else:
-          print('You completely blocked the goblin\'s strike')
-      print('YOU: ' + str(player['health']) + ' GOBLIN: ' + str(goblin['health']))
-      print('Press any key to continue to fight...')
-      press = input()
-      if turn == 'player':
-        turn = 'goblin'
-      else:
-        turn = 'player'
+          turn = 'player'
+    else:
+      simulateCombat()
     if goblin['health'] <= 0:
       loot_str = getLoot()
       goblin_str = buffGoblin(goblin)
