@@ -42,6 +42,38 @@ def simulateCombat():
     else:
       turn = 'player'
 
+def longCombat():
+  turn = 'player'
+  while goblin['health'] > 0 and player['health'] > 0:
+    strike, defense = generateValues(turn)
+    if turn == 'player':
+      if strike == defense:
+        goblin['health'] -= 1
+        print('Your strike and the goblin\'s defense were EQUAL so you did 1 point of damage')
+      elif strike > defense:
+        diff = strike - defense
+        goblin['health'] -= diff
+        print('Your strike was GREATER than the goblin\'s defense so you did ' + str(diff) + ' point(s) of damage')
+      else:
+        print('The goblin completely blocked your strike')
+    else:
+      if strike == defense:
+        player['health'] -= 1
+        print('The goblin\'s strike and your defense were EQUAL so you took 1 point of damage')
+      elif strike > defense:
+        diff = strike - defense
+        player['health'] -= diff
+        print('The goblin\'s strike was GREATER than the your defense so you took ' + str(diff) + ' point(s) of damage')
+      else:
+        print('You completely blocked the goblin\'s strike')
+    print('YOU: ' + str(player['health']) + ' GOBLIN: ' + str(goblin['health']))
+    print('Press any key to continue to fight...')
+    press = input()
+    if turn == 'player':
+      turn = 'goblin'
+    else:
+      turn = 'player'
+      
 def getLoot():
   results = []
   results_str = ''
@@ -112,35 +144,7 @@ while True:
     goblin = createGoblin()
     turn = 'player'
     if display_type.lower() == 'l':
-      while goblin['health'] > 0 and player['health'] > 0:
-        strike, defense = generateValues(turn)
-        if turn == 'player':
-          if strike == defense:
-            goblin['health'] -= 1
-            print('Your strike and the goblin\'s defense were EQUAL so you did 1 point of damage')
-          elif strike > defense:
-            diff = strike - defense
-            goblin['health'] -= diff
-            print('Your strike was GREATER than the goblin\'s defense so you did ' + str(diff) + ' point(s) of damage')
-          else:
-            print('The goblin completely blocked your strike')
-        else:
-          if strike == defense:
-            player['health'] -= 1
-            print('The goblin\'s strike and your defense were EQUAL so you took 1 point of damage')
-          elif strike > defense:
-            diff = strike - defense
-            player['health'] -= diff
-            print('The goblin\'s strike was GREATER than the your defense so you took ' + str(diff) + ' point(s) of damage')
-          else:
-            print('You completely blocked the goblin\'s strike')
-        print('YOU: ' + str(player['health']) + ' GOBLIN: ' + str(goblin['health']))
-        print('Press any key to continue to fight...')
-        press = input()
-        if turn == 'player':
-          turn = 'goblin'
-        else:
-          turn = 'player'
+      longCombat()
     else:
       simulateCombat()
     if goblin['health'] <= 0:
